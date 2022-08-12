@@ -6,6 +6,9 @@
   <meta name="viewport" content="width=device-width">
   <title>replit</title>
   <link href="style.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
 
 <body>
@@ -21,37 +24,40 @@
     function draw(event) {
       var canvas = document.getElementById("myCanvas");
       var ctx = canvas.getContext("2d");
+      mouseCoordinates = {x: event.clientX, y: event.clientY};
       console.log(true);
       
       if (entity == "node") {
         if (nodes.every(isTouching)){
           ctx.beginPath();
-          ctx.arc(event.clientX, event.clientY, radius, 0, 2 * Math.PI);
+          ctx.arc(mouseCoordinates.x, mouseCoordinates.y, radius, 0, 2 * Math.PI);
           ctx.stroke();
-          nodes.push({x: event.clientX, y: event.clientY}); 
+          nodes.push({x: mouseCoordinates.x, y: mouseCoordinates.y}); 
         }
       }
 
       else if (entity == "weight") {
-        if (linePoints.length == 0) {
-          linePoints.push(event.clientX, event.clientY);
-        }
-        else if (linePoints.length == 2) {
-          ctx.moveTo(linePoints[0], linePoints[1]);
-          ctx.lineTo(event.clientX, event.clientY);
-          ctx.stroke();
-          linePoints.pop();
-          linePoints.pop();
+        if(nodes.some(onCircle)){
+          if (linePoints.length == 0) {
+            linePoints.push(mouseCoordinates.x, mouseCoordinates.y);
+          }
+          else if (linePoints.length == 2) {
+            ctx.moveTo(linePoints[0], linePoints[1]);
+            ctx.lineTo(mouseCoordinates.x, mouseCoordinates.y);
+            ctx.stroke();
+            linePoints.pop();
+            linePoints.pop();
+          }
         }
       }
     }
 
     function onCircle(el, index, arr) {
-      return Math.sqrt(Math.pow(el.x - event.clientX, 2) + Math.pow(el.y - event.clientY, 2)) <= radius;
+      return Math.sqrt(Math.pow(el.x - mouseCoordinates.x, 2) + Math.pow(el.y - mouseCoordinates.y, 2)) < radius;
     }
-
+    
     function isTouching(el, index, arr) {
-      return Math.sqrt(Math.pow(el.x - event.clientX, 2) + Math.pow(el.y - event.clientY, 2)) > 2 * radius;
+      return Math.sqrt(Math.pow(el.x - mouseCoordinates.x, 2) + Math.pow(el.y - mouseCoordinates.y, 2)) > 2 * radius;
     }
 
     function updateEntity() {
@@ -66,7 +72,13 @@
       document.getElementById("entity-switch").innerHTML = entity;
     }
   </script>
-  <button id="entity-switch" onclick="updateEntity()"></button>
+  <div class="container container-fluid">
+    <div class="container ">
+      <canvas id="myCanvas" onmousedown="draw(event)" width="400" height="400"> </canvas>
+  </div>
+  <button type="button" class="btn btn-default btn-lg" id="entity-switch" onclick="updateEntity()">Node</button>
+</div>
+  
 </body>
 
 </html>
