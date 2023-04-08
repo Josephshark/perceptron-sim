@@ -14,49 +14,80 @@
 <body>
   <script src="script.js"></script>
   <script src="https://replit.com/pblic/js/replit-badge.js" theme="teal" defer></script>
-  <canvas id="myCanvas" onmousedown="draw(event)" width="400" height="400"></canvas>
+  <canvas id="myCanvas" onmousedown="draw(event)" width="400" height="400" style="border:1px solid #d3d3d3;"></canvas>
   <script>
-    const radius = 40;
-    const nodes = [];
+    const radius = 20;
+    let nodes = [];
     var entity = "node";//take off if need be
     const linePoints = [];
+    let lines = [];
+    let nodeValue = 0;
+    let weightValue = 0;
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+    ctx.font = "10px Arial";
     
     function draw(event) {
-      var canvas = document.getElementById("myCanvas");
-      var ctx = canvas.getContext("2d");
+      
+      nodeValue = 0;
+      weightValue = 0;
+      
+
+      
       mouseCoordinates = {x: event.clientX, y: event.clientY};
-      console.log(true);
       
       if (entity == "node") {
-        if (nodes.every(isTouching)){
+        if (nodes.every(isNotTouching)) {
+          
+          nodeValue = prompt("Please put a value");
+          
+          ctx.strokeStyle = "#" + colorize(nodeValue);
+          
           ctx.beginPath();
           ctx.arc(mouseCoordinates.x, mouseCoordinates.y, radius, 0, 2 * Math.PI);
           ctx.stroke();
-          nodes.push({x: mouseCoordinates.x, y: mouseCoordinates.y}); 
+
+          ctx.strokeStyle = "#000000"
+          
+          
+          ctx.fillText(nodeValue, mouseCoordinates.x, mouseCoordinates.y);
+          
+          nodes.push({x: mouseCoordinates.x, y: mouseCoordinates.y, val: nodeValue});
         }
       }
 
       else if (entity == "weight") {
-        if(nodes.some(onCircle)){
+        if (nodes.some(onCircle)) {
           if (linePoints.length == 0) {
             linePoints.push(mouseCoordinates.x, mouseCoordinates.y);
           }
           else if (linePoints.length == 2) {
+            weightValue = prompt("Please put a value");
+            ctx.strokeStyle = "#" + colorize(weightValue);
+            console.log(colorize(weightValue));
+            ctx.beginPath();
             ctx.moveTo(linePoints[0], linePoints[1]);
             ctx.lineTo(mouseCoordinates.x, mouseCoordinates.y);
+            
             ctx.stroke();
-            linePoints.pop();
-            linePoints.pop();
+            
+            ctx.strokeStyle = "#000000"
+            
+            lines.push({x1: linePoints.pop(), y1: linePoints.pop(), x2: mouseCoordinates.x, y2: mouseCoordinates.y, val: weightValue});
           }
         }
       }
+    }
+
+    function colorize(val) {
+      return Math.round(val).toString(16);
     }
 
     function onCircle(el, index, arr) {
       return Math.sqrt(Math.pow(el.x - mouseCoordinates.x, 2) + Math.pow(el.y - mouseCoordinates.y, 2)) < radius;
     }
-    
-    function isTouching(el, index, arr) {
+
+    function isNotTouching(el, index, arr) {
       return Math.sqrt(Math.pow(el.x - mouseCoordinates.x, 2) + Math.pow(el.y - mouseCoordinates.y, 2)) > 2 * radius;
     }
 
@@ -72,13 +103,7 @@
       document.getElementById("entity-switch").innerHTML = entity;
     }
   </script>
-  <div class="container container-fluid">
-    <div class="container ">
-      <canvas id="myCanvas" onmousedown="draw(event)" width="400" height="400"> </canvas>
-  </div>
-  <button type="button" class="btn btn-default btn-lg" id="entity-switch" onclick="updateEntity()">Node</button>
-</div>
-  
+    <button type="button" class="btn btn-default btn-lg" id="entity-switch" onclick="updateEntity()">node</button>
 </body>
 
 </html>
